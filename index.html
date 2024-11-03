@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Movement MCQ Quiz</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Accommodate fixed elements */
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Timer Styling */
+        .timer {
+            position: fixed;          /* Fixes the position relative to the viewport */
+            top: 20px;                /* Positions 20px from the top */
+            right: 20px;              /* Positions 20px from the right */
+            font-size: 1.5rem;        /* Sets a readable font size */
+            color: #d9534f;           /* Sets the text color (red) */
+            font-weight: bold;        /* Makes the text bold */
+            z-index: 1000;            /* Ensures the timer stays above other elements */
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+            padding: 10px 15px;       /* Adds padding around the timer text */
+            border-radius: 5px;       /* Rounds the corners of the timer box */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow for depth */
+        }
+
+        /* Question Map Sidebar Styling */
+        .question-map {
+            position: fixed;          
+            top: 80px;                /* Positioned below the timer */
+            right: 20px;               /* Positioned on the right */
+            width: 180px;              /* Increased width to accommodate 5 columns */
+            background-color: rgba(255, 255, 255, 0.9); 
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 999;             
+            max-height: 90vh;         
+            overflow-y: auto;         
+        }
+
+        .question-map h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        /* Update #questionLinks to Use CSS Grid */
+        #questionLinks {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px; /* Adjust the spacing between links as needed */
+            justify-items: center; /* Centers the links within each grid cell */
+        }
+
+        /* Adjust .question-map .question-link Styling */
+        .question-map .question-link {
+            padding: 5px 0; /* Reduces vertical padding */
+            font-size: 0.9rem; /* Slightly smaller font size for better fit */
+            width: 100%; /* Ensures the link takes the full width of the grid cell */
+            box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+            border-radius: 4px; /* Maintains rounded corners */
+            text-align: center; /* Centers the text within the link */
+            background-color: #f8f9fa;
+            color: #007bff;
+            text-decoration: none;
+            border: 1px solid #007bff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .question-map .question-link:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Add Correct and Incorrect Classes for Highlighting */
+        .question-map .question-link.correct {
+            background-color: #28a745; /* Green background */
+            color: #fff; /* White text */
+            border-color: #28a745; /* Green border */
+        }
+
+        .question-map .question-link.incorrect {
+            background-color: #dc3545; /* Red background */
+            color: #fff; /* White text */
+            border-color: #dc3545; /* Red border */
+        }
+
+        /* Add Attempted Class for Highlighting */
+        .question-map .question-link.attempted {
+            background-color: #17a2b8; /* Blue background for attempted questions */
+            color: #fff; /* White text */
+            border-color: #17a2b8; /* Blue border */
+        }
+
+        /* Submit Button and Score Styling */
+        .question-map .submit-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .question-map .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .question-map .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .question-map .submit-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .question-map .result {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #17a2b8;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Quiz Container Styling */
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            margin-right: 200px; /* Accommodates the question map sidebar on the right */
+            margin-top: 50px;     /* Maintains spacing from the top */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .options input[type="radio"] {
+            display: none;
+        }
+
+        .options input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .options label:hover {
+            background-color: #e6f0ff;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .submit-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            color: #17a2b8;
+        }
+
+        /* Feedback Message Styling */
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .feedback.right {
+            color: #28a745; /* Green for correct answers */
+        }
+
+        .feedback.wrong {
+            color: #dc3545; /* Red for incorrect answers */
+        }
+
+        .feedback.not-attempted {
+            color: #6c757d; /* Gray for not attempted */
+        }
+
+        /* Alert when time is low */
+        .alert {
+            animation: blink 1s steps(5, start) infinite;
+        }
+
+        @keyframes blink {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .quiz-container {
+                margin-right: 0; /* Removes right margin on small screens */
+            }
+
+            .question-map {
+                display: none; /* Hides the question map on small screens */
+            }
+
+            .toggle-question-map {
+                display: block; /* Shows toggle button on small screens */
+            }
+        }
+
+        /* Toggle Button for Question Map (Visible on Small Screens) */
+        .toggle-question-map {
+            position: fixed;
+            top: 20px;
+            right: 20px; /* Positioned on the right */
+            z-index: 1001;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: none; /* Hidden by default */
+        }
+
+        /* Active State for Question Map on Small Screens */
+        .question-map.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Timer Display -->
+    <div class="timer" id="timer">10:00</div>
+
+    <!-- Toggle Button for Question Map (Visible on Small Screens) -->
+    <button class="toggle-question-map" id="toggleQuestionMap">☰</button>
+
+    <!-- Question Map Sidebar -->
+    <div class="question-map" id="questionMap">
+        <h2>Question Map</h2>
+        <div id="questionLinks">
+            <!-- Question links will be injected here by JavaScript -->
+        </div>
+        <!-- Submit Button and Score Display Below the Question Links -->
+        <div class="submit-section">
+            <button type="button" class="submit-btn" id="submitBtn" onclick="checkAnswers()">Submit</button>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <h1>National Movement MCQ Quiz</h1>
+        
+        <form id="quizForm">
+            <!-- Questions will be injected here by JavaScript -->
+        </form>
+
+        <!-- Submit Button and Score Display Below the Questions List -->
+        <div class="submit-section">
+            <button type="button" class="submit-btn" id="submitBtnBelow" onclick="checkAnswers()">Submit</button>
+            <div id="resultBelow" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Declare shuffledQuestions globally
+        let shuffledQuestions = [];
+
+        const questions = [
+  // 1. Lord Reading (1921-1926)
+  {
+    id: 'q1',
+    question: 'Who led the Moplah Rebellion in 1921?',
+    options: [
+      { text: 'M.N. Roy', isCorrect: false },
+      { text: 'Ali Mushliyar', isCorrect: true },
+      { text: 'Subhas Chandra Bose', isCorrect: false },
+      { text: 'Muhammad Ali Jinnah', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q2',
+    question: 'In which year was the Communist Party of India formed?',
+    options: [
+      { text: '1920', isCorrect: false },
+      { text: '1921', isCorrect: true },
+      { text: '1922', isCorrect: false },
+      { text: '1923', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q3',
+    question: 'Which incident led Gandhi to call off the Non-Cooperation Movement in 1922?',
+    options: [
+      { text: 'Kakori Train Robbery', isCorrect: false },
+      { text: 'Chauri Chaura Incident', isCorrect: true },
+      { text: 'Ahmedabad Mill Strike', isCorrect: false },
+      { text: 'Kheda Satyagraha', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q4',
+    question: 'Where was the Civil Services Examination started in 1922?',
+    options: [
+      { text: 'Mumbai', isCorrect: false },
+      { text: 'Delhi', isCorrect: false },
+      { text: 'Kolkata', isCorrect: false },
+      { text: 'Allahabad', isCorrect: true }
+    ]
+  },
+  {
+    id: 'q5',
+    question: 'Who formed the Swaraj Party in 1922?',
+    options: [
+      { text: 'Motilal Nehru', isCorrect: true },
+      { text: 'M.N. Roy', isCorrect: false },
+      { text: 'Chandra Shekhar Azad', isCorrect: false },
+      { text: 'Lala Lajpat Rai', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q6',
+    question: 'What was the main cause of the Moplah Rebellion?',
+    options: [
+      { text: 'Salt Tax', isCorrect: false },
+      { text: 'Increased Lagaan', isCorrect: true },
+      { text: 'Poor Working Conditions', isCorrect: false },
+      { text: 'Separate Electorates', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q7',
+    question: 'Which event involved the death of 22 policemen in 1922?',
+    options: [
+      { text: 'Kakori Train Robbery', isCorrect: false },
+      { text: 'Chauri Chaura Incident', isCorrect: true },
+      { text: 'Direct Action Day', isCorrect: false },
+      { text: 'Dandi March', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q8',
+    question: 'Who founded the Hindustan Republican Association (HRA)?',
+    options: [
+      { text: 'Ram Prasad Bismil', isCorrect: true },
+      { text: 'M.N. Roy', isCorrect: false },
+      { text: 'Jawaharlal Nehru', isCorrect: false },
+      { text: 'Bal Gangadhar Tilak', isCorrect: false }
+    ]
+  },
+
+  // 2. Lord Irwin (1926-1931)
+  {
+    id: 'q9',
+    question: 'When did the Simon Commission arrive in India?',
+    options: [
+      { text: '1926', isCorrect: false },
+      { text: '1927', isCorrect: false },
+      { text: '1928', isCorrect: true },
+      { text: '1929', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q10',
+    question: 'Who presented the Nehru Report in 1928?',
+    options: [
+      { text: 'Jawaharlal Nehru', isCorrect: false },
+      { text: 'Motilal Nehru', isCorrect: true },
+      { text: 'Subhas Chandra Bose', isCorrect: false },
+      { text: 'M.N. Roy', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q11',
+    question: 'What was the primary demand of the Lahore Session of Congress in 1929?',
+    options: [
+      { text: 'Separate electorates', isCorrect: false },
+      { text: 'Complete Swaraj', isCorrect: true },
+      { text: 'Dominion status', isCorrect: false },
+      { text: 'Civil Disobedience', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q12',
+    question: 'Which movement involved the Salt March to Dandi in 1930?',
+    options: [
+      { text: 'Non-Cooperation Movement', isCorrect: false },
+      { text: 'Civil Disobedience Movement', isCorrect: true },
+      { text: 'Quit India Movement', isCorrect: false },
+      { text: 'Khilafat Movement', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q13',
+    question: 'What was the outcome of the First Round Table Conference?',
+    options: [
+      { text: 'Complete Swaraj', isCorrect: false },
+      { text: 'Gandhi-Irwin Pact', isCorrect: false },
+      { text: 'Limited progress', isCorrect: true },
+      { text: 'Partition of India', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q14',
+    question: 'Which pact was signed in 1931 between Gandhi and Lord Irwin?',
+    options: [
+      { text: 'Poona Pact', isCorrect: false },
+      { text: 'Gandhi-Irwin Pact', isCorrect: true },
+      { text: 'Lahore Pact', isCorrect: false },
+      { text: 'Wavell Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q15',
+    question: 'Which commission examined the relationship between British India and princely states in 1927?',
+    options: [
+      { text: 'Simon Commission', isCorrect: false },
+      { text: 'Harcourt Butler Commission', isCorrect: true },
+      { text: 'Radcliffe Commission', isCorrect: false },
+      { text: 'Cabinet Mission', isCorrect: false }
+    ]
+  },
+
+  // 3. Lord Willingdon (1931-1936)
+  {
+    id: 'q16',
+    question: 'What did the Poona Pact of 1932 address?',
+    options: [
+      { text: 'Salt Tax', isCorrect: false },
+      { text: 'Reserved seats for depressed classes', isCorrect: true },
+      { text: 'Complete Swaraj', isCorrect: false },
+      { text: 'Formation of INA', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q17',
+    question: 'Who was the key figure in the Poona Pact?',
+    options: [
+      { text: 'Mahatma Gandhi', isCorrect: false },
+      { text: 'Dr. B.R. Ambedkar', isCorrect: true },
+      { text: 'Jawaharlal Nehru', isCorrect: false },
+      { text: 'Subhas Chandra Bose', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q18',
+    question: 'Which award introduced separate electorates for various communities in 1932?',
+    options: [
+      { text: 'Poona Pact', isCorrect: false },
+      { text: 'Communal Award', isCorrect: true },
+      { text: 'Gandhi-Irwin Pact', isCorrect: false },
+      { text: 'Cabinet Mission', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q19',
+    question: 'When was the Government of India Act passed?',
+    options: [
+      { text: '1932', isCorrect: false },
+      { text: '1935', isCorrect: true },
+      { text: '1937', isCorrect: false },
+      { text: '1940', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q20',
+    question: 'What was a key provision of the Government of India Act 1935?',
+    options: [
+      { text: 'Complete independence', isCorrect: false },
+      { text: 'Provincial autonomy', isCorrect: true },
+      { text: 'Separate electorates', isCorrect: false },
+      { text: 'Formation of INA', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q21',
+    question: 'Which pact replaced separate electorates with reserved constituencies?',
+    options: [
+      { text: 'Gandhi-Irwin Pact', isCorrect: false },
+      { text: 'Poona Pact', isCorrect: true },
+      { text: 'Lahore Resolution', isCorrect: false },
+      { text: 'Wavell Plan', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q22',
+    question: 'Who introduced the Communal Award in 1932?',
+    options: [
+      { text: 'Lord Irwin', isCorrect: false },
+      { text: 'Ramsay MacDonald', isCorrect: true },
+      { text: 'Lord Willingdon', isCorrect: false },
+      { text: 'Lord Linlithgow', isCorrect: false }
+    ]
+  },
+
+  // 4. Lord Linlithgow (1936-1947)
+  {
+    id: 'q23',
+    question: 'Which global event began in 1939 impacting India?',
+    options: [
+      { text: 'World War I', isCorrect: false },
+      { text: 'World War II', isCorrect: true },
+      { text: 'Cold War', isCorrect: false },
+      { text: 'Indo-Pak War', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q24',
+    question: 'What was formed by Subhas Chandra Bose in 1939?',
+    options: [
+      { text: 'HRA', isCorrect: false },
+      { text: 'Forward Bloc', isCorrect: true },
+      { text: 'INA', isCorrect: false },
+      { text: 'Swaraj Party', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q25',
+    question: 'What did the Lahore Resolution of 1940 demand?',
+    options: [
+      { text: 'Complete Swaraj', isCorrect: false },
+      { text: 'Separate Muslim state', isCorrect: true },
+      { text: 'Civil Disobedience', isCorrect: false },
+      { text: 'Reserved seats for minorities', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q26',
+    question: 'Who proposed the August Offer in 1940?',
+    options: [
+      { text: 'Lord Irwin', isCorrect: false },
+      { text: 'Lord Wavell', isCorrect: false },
+      { text: 'Lord Linlithgow', isCorrect: true },
+      { text: 'Lord Mountbatten', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q27',
+    question: 'When was the Indian National Army formed?',
+    options: [
+      { text: '1940', isCorrect: false },
+      { text: '1941', isCorrect: true },
+      { text: '1942', isCorrect: false },
+      { text: '1943', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q28',
+    question: 'What was the main objective of the Cripps Mission in 1942?',
+    options: [
+      { text: 'Complete independence', isCorrect: false },
+      { text: 'Dominion status after war', isCorrect: true },
+      { text: 'Partition of India', isCorrect: false },
+      { text: 'Formation of INA', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q29',
+    question: 'Who led the Quit India Movement in 1942?',
+    options: [
+      { text: 'Subhas Chandra Bose', isCorrect: false },
+      { text: 'Dr. B.R. Ambedkar', isCorrect: false },
+      { text: 'Mahatma Gandhi', isCorrect: true },
+      { text: 'Muhammad Ali Jinnah', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q30',
+    question: 'Which movement involved mass protests and widespread arrests in 1942?',
+    options: [
+      { text: 'Non-Cooperation Movement', isCorrect: false },
+      { text: 'Civil Disobedience Movement', isCorrect: false },
+      { text: 'Quit India Movement', isCorrect: true },
+      { text: 'Khilafat Movement', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q31',
+    question: 'What was the outcome of the Cripps Mission?',
+    options: [
+      { text: 'Successful negotiations', isCorrect: false },
+      { text: 'Rejected by Indian leaders', isCorrect: true },
+      { text: 'Formation of INA', isCorrect: false },
+      { text: 'Partition of India', isCorrect: false }
+    ]
+  },
+
+  // 5. Lord Wavell (1944-1947)
+  {
+    id: 'q32',
+    question: 'What was the objective of the Cabinet Mission in 1946?',
+    options: [
+      { text: 'Form INA', isCorrect: false },
+      { text: 'Discuss transfer of power', isCorrect: true },
+      { text: 'Launch Quit India Movement', isCorrect: false },
+      { text: 'Propose Poona Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q33',
+    question: 'What event on Direct Action Day led to communal riots?',
+    options: [
+      { text: 'Salt March', isCorrect: false },
+      { text: 'Chauri Chaura Incident', isCorrect: false },
+      { text: 'Direct Action Day', isCorrect: true },
+      { text: 'Kakori Train Robbery', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q34',
+    question: 'Who declared the end of British rule in India in 1947?',
+    options: [
+      { text: 'Lord Wavell', isCorrect: false },
+      { text: 'Clement Attlee', isCorrect: true },
+      { text: 'Lord Mountbatten', isCorrect: false },
+      { text: 'Lord Irwin', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q35',
+    question: 'Which plan failed to prevent the partition during the Shimla Conference?',
+    options: [
+      { text: 'Poona Pact', isCorrect: false },
+      { text: 'Wavell Plan', isCorrect: true },
+      { text: 'Mountbatten Plan', isCorrect: false },
+      { text: 'Nehru Report', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q36',
+    question: 'When was the Declaration of the end of British rule in India made?',
+    options: [
+      { text: '1945', isCorrect: false },
+      { text: '1946', isCorrect: false },
+      { text: '1947', isCorrect: true },
+      { text: '1948', isCorrect: false }
+    ]
+  },
+
+  // 6. Lord Mountbatten (1947-1948)
+  {
+    id: 'q37',
+    question: 'What was the purpose of the Mountbatten Plan in June 1947?',
+    options: [
+      { text: 'Form INA', isCorrect: false },
+      { text: 'Expedite transfer of power', isCorrect: true },
+      { text: 'Launch Quit India', isCorrect: false },
+      { text: 'Propose Poona Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q38',
+    question: 'Who was the first Governor-General of independent India?',
+    options: [
+      { text: 'Lord Wavell', isCorrect: false },
+      { text: 'Lord Irwin', isCorrect: false },
+      { text: 'Lord Mountbatten', isCorrect: true },
+      { text: 'Lord Linlithgow', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q39',
+    question: 'Which commission demarcated the boundaries between India and Pakistan?',
+    options: [
+      { text: 'Simon Commission', isCorrect: false },
+      { text: 'Radcliffe Commission', isCorrect: true },
+      { text: 'Harcourt Butler Commission', isCorrect: false },
+      { text: 'Cabinet Mission', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q40',
+    question: 'When did India gain independence?',
+    options: [
+      { text: '15 August 1946', isCorrect: false },
+      { text: '15 August 1947', isCorrect: true },
+      { text: '26 January 1950', isCorrect: false },
+      { text: '2 October 1947', isCorrect: false }
+    ]
+  },
+
+  // 7. Additional Important Movements and Figures
+  {
+    id: 'q41',
+    question: 'Who was the leader of the Indian National Army (INA)?',
+    options: [
+      { text: 'Mahatma Gandhi', isCorrect: false },
+      { text: 'Subhas Chandra Bose', isCorrect: true },
+      { text: 'Jawaharlal Nehru', isCorrect: false },
+      { text: 'Dr. B.R. Ambedkar', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q42',
+    question: 'Which group was responsible for the Kakori Train Robbery?',
+    options: [
+      { text: 'HRA', isCorrect: true },
+      { text: 'INA', isCorrect: false },
+      { text: 'Forward Bloc', isCorrect: false },
+      { text: 'Swaraj Party', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q43',
+    question: 'Who advocated for Dalit rights and played a crucial role in the Poona Pact?',
+    options: [
+      { text: 'Jawaharlal Nehru', isCorrect: false },
+      { text: 'Dr. B.R. Ambedkar', isCorrect: true },
+      { text: 'Subhas Chandra Bose', isCorrect: false },
+      { text: 'Muhammad Ali Jinnah', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q44',
+    question: 'Which leader demanded a separate Muslim-majority nation?',
+    options: [
+      { text: 'Mahatma Gandhi', isCorrect: false },
+      { text: 'Subhas Chandra Bose', isCorrect: false },
+      { text: 'Muhammad Ali Jinnah', isCorrect: true },
+      { text: 'Jawaharlal Nehru', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q45',
+    question: 'What did the Hindustan Republican Association (HRA) aim to do?',
+    options: [
+      { text: 'Promote non-violent resistance', isCorrect: false },
+      { text: 'Conduct revolutionary activities', isCorrect: true },
+      { text: 'Form the Indian National Congress', isCorrect: false },
+      { text: 'Draft the Nehru Report', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q46',
+    question: 'Which movement was led by Mahatma Gandhi to resist British rule through non-violent means?',
+    options: [
+      { text: 'Quit India Movement', isCorrect: false },
+      { text: 'Civil Disobedience Movement', isCorrect: false },
+      { text: 'Both A and B', isCorrect: true },
+      { text: 'Neither A nor B', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q47',
+    question: 'Which event marked the beginning of the Civil Disobedience Movement?',
+    options: [
+      { text: 'Chauri Chaura Incident', isCorrect: false },
+      { text: 'Dandi March', isCorrect: true },
+      { text: 'Salt Tax Protest', isCorrect: false },
+      { text: 'Quit India Movement', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q48',
+    question: 'Which plan was proposed by British Viceroy Lord Wavell to resolve differences between Congress and Muslim League?',
+    options: [
+      { text: 'Mountbatten Plan', isCorrect: false },
+      { text: 'Wavell Plan', isCorrect: true },
+      { text: 'Cripps Mission', isCorrect: false },
+      { text: 'Poona Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q49',
+    question: 'Which conference proposed a federal structure for India in 1946?',
+    options: [
+      { text: 'Round Table Conference', isCorrect: false },
+      { text: 'Cabinet Mission', isCorrect: true },
+      { text: 'Lahore Conference', isCorrect: false },
+      { text: 'Shimla Conference', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q50',
+    question: 'Which movement was initiated by the Muslim League in 1946?',
+    options: [
+      { text: 'Non-Cooperation Movement', isCorrect: false },
+      { text: 'Direct Action Day', isCorrect: true },
+      { text: 'Quit India Movement', isCorrect: false },
+      { text: 'Civil Disobedience Movement', isCorrect: false }
+    ]
+  },
+];
+
+
+
+        // Function to shuffle an array using Fisher-Yates algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Function to render the questions dynamically
+        function renderQuestions() {
+            const quizForm = document.getElementById('quizForm');
+            const questionsArray = getQuestions(); // Retrieve the questions array
+            if (!questionsArray || !Array.isArray(questionsArray) || questionsArray.length < 25) {
+                quizForm.innerHTML = '<p>Insufficient questions available. Please ensure there are at least 25 questions in the questions array.</p>';
+                return;
+            }
+
+            // Randomly select 25 questions from the available questions
+            const selectedQuestions = getRandomQuestions(questionsArray, 25);
+
+            // Assign shuffledQuestions to the global variable
+            shuffledQuestions = shuffleArray([...selectedQuestions]); // Create a copy and shuffle
+
+            shuffledQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.id = `question-${index + 1}`; // Assign unique ID
+
+                // Question text
+                const questionText = document.createElement('p');
+                questionText.textContent = `${index + 1}. ${q.question}`;
+                questionDiv.appendChild(questionText);
+
+                // Options
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+
+                // Shuffle options and assign back to q.options
+                q.options = shuffleArray([...q.options]);
+                const shuffledOptions = q.options;
+
+                // Assign labels A, B, C, D dynamically
+                const labels = ['A', 'B', 'C', 'D'];
+
+                shuffledOptions.forEach((option, optIndex) => {
+                    const optionId = `${q.id}_option${optIndex + 1}`; // Unique ID for each option
+
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.id = optionId;
+                    radioInput.name = q.id;
+                    radioInput.value = labels[optIndex]; // Assign label as value
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = `${labels[optIndex]}) ${option.text}`;
+
+                    optionsDiv.appendChild(radioInput);
+                    optionsDiv.appendChild(label);
+
+                    // Add Attempted Class when an option is selected
+                    radioInput.addEventListener('change', function() {
+                        const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                        if (questionMapLink && !questionMapLink.classList.contains('correct') && !questionMapLink.classList.contains('incorrect')) {
+                            questionMapLink.classList.add('attempted');
+                        }
+                    });
+                });
+
+                questionDiv.appendChild(optionsDiv);
+
+                // Add Feedback Div Below Options
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.classList.add('feedback');
+                feedbackDiv.id = `feedback-${index + 1}`; // Unique ID for each feedback div
+                questionDiv.appendChild(feedbackDiv);
+
+                quizForm.appendChild(questionDiv);
+            });
+
+            generateQuestionMap(shuffledQuestions.length);
+        }
+
+        // Function to retrieve the questions array
+        function getQuestions() {
+            // Replace this with your actual questions array
+            return questions; // Assuming 'questions' is defined globally
+        }
+
+        // Function to randomly select n questions from the questions array
+        function getRandomQuestions(questionsArray, n) {
+            const shuffled = shuffleArray([...questionsArray]);
+            return shuffled.slice(0, n);
+        }
+
+        // Function to generate the Question Map links
+        function generateQuestionMap(totalQuestions) {
+            const questionLinksDiv = document.getElementById('questionLinks');
+            questionLinksDiv.innerHTML = ''; // Clear any existing links
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const link = document.createElement('a');
+                link.href = `#question-${i}`;
+                link.classList.add('question-link');
+                link.textContent = `Q${i}`;
+
+                questionLinksDiv.appendChild(link);
+            }
+        }
+
+        // Timer Functionality
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            const countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                // Add alert class when time is less than 1 minute
+                if (timer <= 60 && timer > 0) { // 60 seconds = 1 minute
+                    display.classList.add('alert');
+                }
+
+                if (--timer < 0) {
+                    clearInterval(countdown);
+                    autoSubmit();
+                }
+            }, 1000);
+        }
+
+        // Function to automatically submit the quiz when time is up
+        function autoSubmit() {
+            alert("Time's up! The quiz will now be submitted.");
+            checkAnswers();
+        }
+
+        // Initialize the quiz on page load
+        window.onload = function () {
+            renderQuestions(); // Render questions on page load
+            const tenMinutes = 60 * 10, // 10 minutes in seconds
+                  display = document.getElementById('timer');
+            startTimer(tenMinutes, display);
+        };
+
+        // Function to check answers and display the result
+        function checkAnswers() {
+            let score = 0;
+            let totalQuestions = shuffledQuestions.length; // Total number of questions
+
+            shuffledQuestions.forEach((q, index) => { // Iterate over each question
+                const selectedOption = document.querySelector(`input[name="${q.id}"]:checked`);
+                const feedbackDiv = document.getElementById(`feedback-${index + 1}`);
+                
+                if (selectedOption) {
+                    // Get the selected label (A, B, C, D)
+                    const selectedLabel = selectedOption.value;
+                    // Map label to option index
+                    const labelIndex = ['A', 'B', 'C', 'D'].indexOf(selectedLabel);
+                    if (labelIndex !== -1 && q.options[labelIndex].isCorrect) {
+                        score += 1; // Add 1 mark for correct answer
+
+                        // Mark the question link as correct in the Question Map
+                        const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                        if (questionMapLink) {
+                            questionMapLink.classList.add('correct');
+                            questionMapLink.classList.remove('incorrect', 'attempted');
+                        }
+
+                        // Update Feedback Below the Question
+                        if (feedbackDiv) {
+                            feedbackDiv.textContent = 'Right';
+                            feedbackDiv.classList.add('right');
+                            feedbackDiv.classList.remove('wrong', 'not-attempted');
+                        }
+                    } else {
+                        score -= 0.5; // Deduct 0.5 marks for incorrect answer
+
+                        // Mark the question link as incorrect in the Question Map
+                        const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                        if (questionMapLink) {
+                            questionMapLink.classList.add('incorrect');
+                            questionMapLink.classList.remove('correct', 'attempted');
+                        }
+
+                        // Update Feedback Below the Question
+                        if (feedbackDiv) {
+                            feedbackDiv.textContent = 'Wrong';
+                            feedbackDiv.classList.add('wrong');
+                            feedbackDiv.classList.remove('right', 'not-attempted');
+                        }
+                    }
+                } else {
+                    // If the question was not answered, mark as not attempted
+                    const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                    if (questionMapLink) {
+                        // Remove both classes if the question was not answered
+                        questionMapLink.classList.remove('correct', 'incorrect', 'attempted');
+                    }
+
+                    // Update Feedback Below the Question
+                    if (feedbackDiv) {
+                        feedbackDiv.textContent = 'Not Attempted';
+                        feedbackDiv.classList.add('not-attempted');
+                        feedbackDiv.classList.remove('right', 'wrong');
+                    }
+                }
+            });
+
+            // Round the score to one decimal place
+            score = Math.round(score * 10) / 10;
+
+            // Update the result in the Question Map Sidebar
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = `You scored ${score} out of ${totalQuestions}`;
+
+            // Update the result below the questions list
+            const resultDivBelow = document.getElementById('resultBelow');
+            resultDivBelow.textContent = `You scored ${score} out of ${totalQuestions}`;
+
+            // Disable all inputs to prevent changes after submission
+            const inputs = document.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            // Disable the submit buttons to prevent multiple submissions
+            const submitButton = document.getElementById('submitBtn');
+            submitButton.disabled = true;
+
+            const submitButtonBelow = document.getElementById('submitBtnBelow');
+            if (submitButtonBelow) {
+                submitButtonBelow.disabled = true;
+            }
+        }
+
+        // Toggle Question Map on small screens
+        const toggleBtn = document.getElementById('toggleQuestionMap');
+        const questionMap = document.getElementById('questionMap');
+
+        toggleBtn.addEventListener('click', () => {
+            questionMap.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
